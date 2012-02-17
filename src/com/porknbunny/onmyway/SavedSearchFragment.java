@@ -1,10 +1,18 @@
 package com.porknbunny.onmyway;
 
 import android.app.Fragment;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.IllegalFormatCodePointException;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,7 +22,9 @@ import android.view.ViewGroup;
  * To change this template use File | Settings | File Templates.
  */
 public class SavedSearchFragment extends Fragment{
+    private static final String TAG = "SavedSearchFragment";
 
+     
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -31,6 +41,7 @@ public class SavedSearchFragment extends Fragment{
         super.onActivityCreated(savedState);
 
         //do data processing here...
+
     }
 
     @Override
