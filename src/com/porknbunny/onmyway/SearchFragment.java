@@ -1,10 +1,15 @@
 package com.porknbunny.onmyway;
 
 import android.app.Fragment;
+import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,6 +19,10 @@ import android.view.ViewGroup;
  * To change this template use File | Settings | File Templates.
  */
 public class SearchFragment extends Fragment{
+    private static final String TAG = "SearchFragment";
+    private EditText mSearchEditTextView;
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -30,6 +39,16 @@ public class SearchFragment extends Fragment{
         super.onActivityCreated(savedState);
 
         //do data processing here...
+
+        Button searchButton = (Button)getActivity().findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchButton(view);
+            }
+        });
+
+        mSearchEditTextView = (EditText)getActivity().findViewById(R.id.searchText);
     }
 
     @Override
@@ -40,4 +59,9 @@ public class SearchFragment extends Fragment{
 
         return view;
     }
+
+    public void searchButton(View button){
+        Log.d(TAG, "Do places search: " + mSearchEditTextView.getText());
+    }
+
 }
