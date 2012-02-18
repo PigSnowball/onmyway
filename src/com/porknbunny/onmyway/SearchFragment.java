@@ -1,16 +1,14 @@
 package com.porknbunny.onmyway;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 
 import java.util.ArrayList;
@@ -30,7 +28,8 @@ public class SearchFragment extends Fragment{
     private Location mLocation;
     private Criteria mCriteria;
     private ListView mSearchListView;
-    private PlaceListAdapter mPlacesListAdapter;
+    private BaseAdapter mPlacesAdapter;
+    private ArrayList<Place> mPlacesList;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -48,11 +47,12 @@ public class SearchFragment extends Fragment{
         super.onActivityCreated(savedState);
 
         //do data processing here...
+        mPlacesList = new ArrayList<Place>();
 
         //set up results table
-        mPlacesListAdapter = new PlaceListAdapter();
+        mPlacesAdapter = new PlaceListAdapter();
         mSearchListView = (ListView)getActivity().findViewById(R.id.searchResultsList);
-        mSearchListView.setAdapter(mPlacesListAdapter);
+        mSearchListView.setAdapter(mPlacesAdapter);
 
         //EditTextView
         mSearchEditTextView = (EditText)getActivity().findViewById(R.id.searchText);
@@ -60,11 +60,13 @@ public class SearchFragment extends Fragment{
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
                 if(keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+                    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                     searchButton();
+                    return true;
                 }
+                return false;
             }
         });
-
 
         mLocationManager = (LocationManager) getActivity().getSystemService(getActivity().getApplicationContext().LOCATION_SERVICE);
         mCriteria = new Criteria();
@@ -90,34 +92,68 @@ public class SearchFragment extends Fragment{
                              ViewGroup container, Bundle savedInstanceState) {
         
         View view = inflater.inflate(R.layout.search_results_fragment, container, false);
-
         return view;
     }
 
-    private class PlaceListAdapter extends ArrayAdapter<Place>{
-        
+    public void addPlaces(ArrayList<Place> newPlaces){
+        for(Place newPlace : newPlaces){
+            if(!isDuplicate(newPlace)){
+                mPlacesList.add(newPlace);
+            }
+        }
+        mPlacesAdapter.notifyDataSetChanged();
+    }
+
+    private boolean isDuplicate(Place newPlace){
+        for(Place existingPlace : mPlacesList){
+            if(existingPlace.getmReference().equals(newPlace.getmReference())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private class PlaceListAdapter extends BaseAdapter{
+        LayoutInflater inflateService;
+
         public PlaceListAdapter(){
             super();
+            inflateService = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-        
-        private boolean isDuplicate(Place newPlace){
-            for(int i = 0; i < getCount(); i++){
-                Place existingPlace = getItem(i);
-                if(existingPlace.getmReference().equals(newPlace.getmReference())){
-                    return true;
+
+        @Override
+        public int getCount() {
+            return mPlacesList.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return mPlacesList.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView (int position, View convertView, ViewGroup parent){
+            if (convertView == null) {
+                convertView = inflateService.inflate(R.layout.place_list_item, parent, false);
+                int resourceList[] = {R.id.place_name
+                };
+                for (int res : resourceList) {
+                    convertView.setTag(res, convertView.findViewById(res));
                 }
             }
-            return false;
-        }
-        
-        public void addPlace(ArrayList<Place> newPlaces){
-            for(Place newPlace : newPlaces){
-                if(!isDuplicate(newPlace)){
-                    add(newPlace);
-                }
+
+            Place place = mPlacesList.get(position);
+
+            if (place != null) {
+                ((TextView) convertView.getTag(R.id.place_name)).setText(place.getmName());
             }
+            return convertView;
         }
-        
     }
     
     public void searchButton(){
@@ -131,7 +167,7 @@ public class SearchFragment extends Fragment{
 
     private class AsyncPlacesQuery extends AsyncTask<PlacesQuery, Void, ArrayList<Place>>{
         public AsyncPlacesQuery(){
-
+             super();
         }
 
         @Override
@@ -145,9 +181,8 @@ public class SearchFragment extends Fragment{
             for(Place place : placeList){
                 Log.d(TAG, "JSON RESULTS: " + place);
             }
+            addPlaces(placeList);
         }
-
-
     }
 
 }
