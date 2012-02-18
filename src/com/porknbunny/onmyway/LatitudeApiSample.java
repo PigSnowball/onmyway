@@ -94,7 +94,7 @@ public class LatitudeApiSample extends FragmentActivity {
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                textView.setText("Error occured : " + ex.getMessage());
+                //textView.setText("Error occured : " + ex.getMessage());
             }
             return false;
         }

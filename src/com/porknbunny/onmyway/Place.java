@@ -1,5 +1,7 @@
 package com.porknbunny.onmyway;
 
+import android.location.Location;
+
 /**
  * Created by IntelliJ IDEA.
  * User: pigsnowball
@@ -10,6 +12,9 @@ package com.porknbunny.onmyway;
 public class Place {
     private float mLatitude, mLongitude;
     private String mIcon, mReference , mName, mVicinity;
+    private float mDistanceToUser, mDistanceToLatPoint;
+    private Location mNearestLatitude;
+    private String mNearestLatitudeNice;
 
     public Place(float mLatitude, float mLongitude, String mIcon, String mReference, String mName, String vicinity) {
         this.mLatitude = mLatitude;
@@ -22,6 +27,37 @@ public class Place {
 
     public Place(){
 
+    }
+
+    public float getmDistanceToLatPoint() {
+        return mDistanceToLatPoint;
+    }
+
+    public void setmDistanceToLatPoint(float mDistanceToLatPoint) {
+        this.mDistanceToLatPoint = mDistanceToLatPoint;
+    }
+
+    public Location getmNearestLatitude() {
+        return mNearestLatitude;
+    }
+
+    public void setmNearestLatitude(Location mNearestLatitude) {
+        this.mNearestLatitude = mNearestLatitude;
+    }
+
+    public String getmNearestLatitudeNice() {
+        return mNearestLatitudeNice;
+    }
+
+    public void setmNearestLatitudeNice(String mNearestLatitudeNice) {
+        this.mNearestLatitudeNice = mNearestLatitudeNice;
+    }
+
+    public Location getLocation(){
+        Location location = new Location("Latitude");
+        location.setLatitude(mLatitude);
+        location.setLongitude(mLongitude);
+        return location;
     }
 
     public float getmLatitude() {

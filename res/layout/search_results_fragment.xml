@@ -4,6 +4,10 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
+    <ProgressBar android:layout_width="fill_parent"
+                 android:layout_height="3dp"
+                 android:id="@+id/search_progress"
+                 style="@android:style/Widget.ProgressBar.Horizontal"/>
     <EditText android:layout_height="48dp"
               android:layout_width="fill_parent"
               android:id="@+id/searchText"/>

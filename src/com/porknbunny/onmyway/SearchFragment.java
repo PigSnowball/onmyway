@@ -32,6 +32,9 @@ public class SearchFragment extends Fragment {
     private BaseAdapter mPlacesAdapter;
     private ArrayList<Place> mPlacesList;
     private ArrayList<Location> mLocationsList;
+    private int searchCount = 0;
+    private ProgressBar mProgressBar;
+    private int searchValue = 0;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -66,7 +69,6 @@ public class SearchFragment extends Fragment {
         if(mLocation != null){
             mLocationsList.add(mLocation);
         }
-
 
         //sort latitude data
         ArrayList<Location> tempLocList = getActivity().getIntent().getExtras().getParcelableArrayList("locations");
@@ -111,6 +113,9 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
+        
+        mProgressBar = (ProgressBar) getActivity().findViewById(R.id.search_progress);
+        mProgressBar.setVisibility(View.INVISIBLE);
 
 
     }
@@ -122,12 +127,42 @@ public class SearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.search_results_fragment, container, false);
         return view;
     }
+    
+    public void addPlace(Place newPlace){
+        //check for dupes
+        if(isDuplicate(newPlace)){
+            return;
+        }
+
+        //ok lets, find the nearest lat point
+        Location newPlaceLoc = newPlace.getLocation();
+        float minDistance = 9999999;
+        Location minLocation = null;
+        for (Location testLocation : mLocationsList) {
+            if (testLocation.distanceTo(newPlaceLoc) < minDistance) {
+                minLocation = testLocation;
+                minDistance = testLocation.distanceTo(newPlaceLoc);
+            }
+        }
+        
+        newPlace.setmNearestLatitude(minLocation);
+        newPlace.setmDistanceToLatPoint(minDistance);
+        
+        //find position to enter in array
+        for(Place cmpPlace: mPlacesList){
+            if(cmpPlace.getmDistanceToLatPoint() > newPlace.getmDistanceToLatPoint()){
+                int insertInFrontOf = mPlacesList.indexOf(cmpPlace);
+                mPlacesList.add(insertInFrontOf, newPlace);
+                return;
+            }
+        }
+        mPlacesList.add(newPlace);
+        
+    }
 
     public void addPlaces(ArrayList<Place> newPlaces){
         for(Place newPlace : newPlaces){
-            if(!isDuplicate(newPlace)){
-                mPlacesList.add(newPlace);
-            }
+            addPlace(newPlace);
         }
         mPlacesAdapter.notifyDataSetChanged();
     }
@@ -135,6 +170,7 @@ public class SearchFragment extends Fragment {
     private boolean isDuplicate(Place newPlace){
         for(Place existingPlace : mPlacesList){
             if(existingPlace.getmReference().equals(newPlace.getmReference())){
+
                 return true;
             }
         }
@@ -168,7 +204,12 @@ public class SearchFragment extends Fragment {
         public View getView (int position, View convertView, ViewGroup parent){
             if (convertView == null) {
                 convertView = inflateService.inflate(R.layout.place_list_item, parent, false);
-                int resourceList[] = {R.id.place_name
+                int resourceList[] = {R.id.place_name,
+                        R.id.place_icon,
+                        R.id.place_distance_to_lat,
+                        R.id.place_distance_to_user,
+                        R.id.place_lat,
+                        R.id.place_vicinity
                 };
                 for (int res : resourceList) {
                     convertView.setTag(res, convertView.findViewById(res));
@@ -179,6 +220,11 @@ public class SearchFragment extends Fragment {
 
             if (place != null) {
                 ((TextView) convertView.getTag(R.id.place_name)).setText(place.getmName());
+                ((TextView) convertView.getTag(R.id.place_vicinity)).setText(place.getVicinity());
+                ((TextView) convertView.getTag(R.id.place_lat)).setText("");
+                ((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(""+(int)place.getLocation().distanceTo(mLocation)+"m");
+                ((TextView) convertView.getTag(R.id.place_distance_to_lat)).setText(""+(int)place.getmDistanceToLatPoint()+"m");
+                //((ImageView) convertView.getTag(R.id.place_icon))
             }
             return convertView;
         }
@@ -188,6 +234,9 @@ public class SearchFragment extends Fragment {
         String query = mSearchEditTextView.getText().toString();
         Log.d(TAG, "Do places search: " + mSearchEditTextView.getText());
 
+        searchCount = 0;
+        mProgressBar.setVisibility(View.VISIBLE);
+        mProgressBar.setProgress(0);
         //only keeping latitude data seperated by 500m
         Location prevLocation = null;
         for(Location location : mLocationsList){
@@ -198,11 +247,24 @@ public class SearchFragment extends Fragment {
             }
             prevLocation = location;
         }
+        mProgressBar.setProgress(5);
+        searchValue = 95 / searchCount;
+        
     }
 
+    private void checkProgress(){
+        searchCount--;
+        mProgressBar.incrementProgressBy(searchValue);
+        if(searchCount <= 0){
+            mProgressBar.incrementProgressBy(searchValue);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+    
     private class AsyncPlacesQuery extends AsyncTask<PlacesQuery, Void, ArrayList<Place>>{
         public AsyncPlacesQuery(){
              super();
+            searchCount++;
         }
 
         @Override
@@ -217,6 +279,7 @@ public class SearchFragment extends Fragment {
                 Log.d(TAG, "JSON RESULTS: " + place);
             }
             addPlaces(placeList);
+            checkProgress();
         }
     }
 

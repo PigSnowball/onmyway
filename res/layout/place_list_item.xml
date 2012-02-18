@@ -20,6 +20,22 @@
               android:layout_alignLeft="@id/place_name"
               android:id="@+id/place_vicinity"
             android:text="Place Vicinity"/>
-
-
+    <TextView android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:layout_alignLeft="@id/place_name"
+              android:layout_below="@id/place_vicinity"
+              android:id="@+id/place_lat"
+              android:text="Cnr. Jacksons Rd and Collingwood."/>
+    <TextView android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:layout_alignParentRight="true"
+              android:layout_alignBaseline="@id/place_lat"
+              android:id="@+id/place_distance_to_lat"
+              android:text="220m"/>
+    <TextView android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:layout_alignParentRight="true"
+              android:layout_alignParentTop="true"
+              android:id="@+id/place_distance_to_user"
+              android:text="5.5km"/>
 </RelativeLayout>
