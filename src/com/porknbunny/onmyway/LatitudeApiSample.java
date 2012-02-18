@@ -2,7 +2,9 @@ package com.porknbunny.onmyway;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.porknbunny.onmyway.data.OmwLocation;
 import com.porknbunny.onmyway.store.CredentialStore;
 import com.porknbunny.onmyway.store.SharedPreferencesCredentialStore;
 import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
@@ -63,7 +66,14 @@ public class LatitudeApiSample extends Activity {
 		});
 		
 		// Performs an authorized API call.
-		performApiCall();
+		//performApiCall();
+        Button launchLat = (Button)findViewById(R.id.btn_launch_lat);
+        launchLat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                performApiCall();
+            }
+        });
 
 	}
 	
@@ -102,10 +112,27 @@ public class LatitudeApiSample extends Activity {
 			String locationAsString = convertLocationToString(currentLocation);
 			textView.setText(locationAsString);
 
+            ArrayList<android.location.Location> locationList = new ArrayList<android.location.Location>();
+
            LocationFeed locationFeed = latitude.location.list().execute();
            for(Location location : locationFeed.items){
-                Log.d(TAG,location.toString());
+               Log.d(TAG,location.toString());
+               double lat = Double.parseDouble(location.latitude.toString());
+               double longitude = Double.parseDouble(location.longitude.toString());
+               long secondsSinceEpoch = Long.parseLong(location.timestampMs.toString());
+               android.location.Location androidLocation = new android.location.Location("Latitude");
+               androidLocation.setLatitude(lat);
+               androidLocation.setLongitude(longitude);
+               androidLocation.setTime(secondsSinceEpoch);
+               Log.d(TAG, androidLocation.toString());
+
+               locationList.add(androidLocation);
+
            }
+
+            Intent intent = new Intent(this, SearchActivity.class);
+            intent.putParcelableArrayListExtra("locations", locationList);
+            startActivity(intent);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();

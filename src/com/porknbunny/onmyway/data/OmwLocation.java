@@ -9,6 +9,20 @@ package com.porknbunny.onmyway.data;
  */
 public class OmwLocation {
     private double mLatitude, mLongitude;
-    private long secondsSinceEpoch;
+    private long mSecondsSinceEpoch;
 
+    public OmwLocation(double mLatitude, double mLongitude, long mSecondsSinceEpoch) {
+        this.mLatitude = mLatitude;
+        this.mLongitude = mLongitude;
+        this.mSecondsSinceEpoch = mSecondsSinceEpoch;
+    }
+
+    @Override
+    public String toString() {
+        return "OmwLocation{" +
+                "mLatitude=" + mLatitude +
+                ", mLongitude=" + mLongitude +
+                ", mSecondsSinceEpoch=" + mSecondsSinceEpoch +
+                '}';
+    }
 }

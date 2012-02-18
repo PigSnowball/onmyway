@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -37,8 +38,11 @@ public class OAuthAccessTokenActivity extends Activity {
 		super.onCreate(savedInstanceState);
         Log.i(TAG, "Starting task to retrieve request token.");
         this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        
-        
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         //new OAuthRequestTokenTask(this).execute();
 	}
 	

@@ -30,6 +30,7 @@ public class SearchFragment extends Fragment{
     private ListView mSearchListView;
     private BaseAdapter mPlacesAdapter;
     private ArrayList<Place> mPlacesList;
+    private ArrayList<Location> mLocationsList;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -40,6 +41,34 @@ public class SearchFragment extends Fragment{
         you should initialize essential components of the fragment that you want to
         retain when the fragment is paused or stopped, then resumed.
          */
+
+        mLocationManager = (LocationManager) getActivity().getSystemService(getActivity().getApplicationContext().LOCATION_SERVICE);
+        mCriteria = new Criteria();
+        mCriteria.setAccuracy(Criteria.ACCURACY_FINE);
+        mCriteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
+
+        List<String> providers = mLocationManager.getAllProviders();
+        long latestTime = 0;
+        if (providers.size() == 0) {
+            Log.w(TAG, "No providers available");
+        }
+
+        for (String provider : providers) {
+            Location tempLoc = mLocationManager.getLastKnownLocation(provider);
+            if (tempLoc != null && (tempLoc.getTime() > latestTime)) {
+                mLocation = tempLoc;
+                latestTime = tempLoc.getTime();
+            }
+        }
+
+        mLocationsList = new ArrayList<Location>();
+        mLocationsList.add(mLocation);
+
+        //sort latitude data
+        ArrayList<Location> tempLocList = getActivity().getIntent().getExtras().getParcelableArrayList("locations");
+        mLocationsList.addAll(tempLocList);
+
+
     }
 
     @Override
@@ -67,23 +96,7 @@ public class SearchFragment extends Fragment{
             }
         });
 
-        mLocationManager = (LocationManager) getActivity().getSystemService(getActivity().getApplicationContext().LOCATION_SERVICE);
-        mCriteria = new Criteria();
-        mCriteria.setAccuracy(Criteria.ACCURACY_FINE);
-        mCriteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
 
-        List<String> providers = mLocationManager.getAllProviders();
-        double accuracy = -1;
-        if (providers.size() == 0) {
-            Log.w(TAG, "No providers available");
-        }
-
-        for (String provider : providers) {
-            Location tempLoc = mLocationManager.getLastKnownLocation(provider);
-            if (tempLoc != null && (accuracy < 0 || tempLoc.getAccuracy() < accuracy)) {
-                mLocation = tempLoc;
-            }
-        }
     }
 
     @Override
@@ -159,9 +172,16 @@ public class SearchFragment extends Fragment{
         String query = mSearchEditTextView.getText().toString();
         Log.d(TAG, "Do places search: " + mSearchEditTextView.getText());
 
-        PlacesQuery placesQuery = new PlacesQuery(mLocation, query, "AIzaSyAC-8tZVVPKXxAnBMhK3jUBFuRNXtAsOjk");
-        AsyncPlacesQuery asyncPlacesQuery = new AsyncPlacesQuery();
-        asyncPlacesQuery.execute(placesQuery);
+        //only keeping latitude data seperated by 500m
+        Location prevLocation = null;
+        for(Location location : mLocationsList){
+            if(prevLocation == null || prevLocation.distanceTo(location) > 1500){
+                PlacesQuery placesQuery = new PlacesQuery(location, query, "AIzaSyAC-8tZVVPKXxAnBMhK3jUBFuRNXtAsOjk");
+                AsyncPlacesQuery asyncPlacesQuery = new AsyncPlacesQuery();
+                asyncPlacesQuery.execute(placesQuery);
+            }
+            prevLocation = location;
+        }
     }
 
     private class AsyncPlacesQuery extends AsyncTask<PlacesQuery, Void, ArrayList<Place>>{
