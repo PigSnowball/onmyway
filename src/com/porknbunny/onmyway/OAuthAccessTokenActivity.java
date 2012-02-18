@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -27,7 +28,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
  * After the request is authorized by the user, the callback URL will be intercepted here.
  * 
  */
-public class OAuthAccessTokenActivity extends Activity {
+public class OAuthAccessTokenActivity extends FragmentActivity {
 
 	final String TAG = getClass().getName();
 	
@@ -58,9 +59,6 @@ public class OAuthAccessTokenActivity extends Activity {
         
         /* WebViewClient must be set BEFORE calling loadUrl! */  
         webview.setWebViewClient(new WebViewClient() {  
-
-
-
 
         	@Override  
             public void onPageStarted(WebView view, String url,Bitmap bitmap)  {  

@@ -1,12 +1,13 @@
 package com.porknbunny.onmyway;
 
-import android.app.Fragment;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -21,7 +22,7 @@ import java.util.List;
  * Time: 22:00
  * To change this template use File | Settings | File Templates.
  */
-public class SearchFragment extends Fragment{
+public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private EditText mSearchEditTextView;
     private LocationManager mLocationManager;
@@ -62,13 +63,26 @@ public class SearchFragment extends Fragment{
         }
 
         mLocationsList = new ArrayList<Location>();
-        mLocationsList.add(mLocation);
+        if(mLocation != null){
+            mLocationsList.add(mLocation);
+        }
+
 
         //sort latitude data
         ArrayList<Location> tempLocList = getActivity().getIntent().getExtras().getParcelableArrayList("locations");
-        mLocationsList.addAll(tempLocList);
 
+        if(tempLocList != null && tempLocList.size() >0){
+            mLocationsList.addAll(tempLocList);
+        }
 
+        if(mLocationsList.size() == 0){
+            Log.w(TAG,"User has neither latitude locations or hardware location");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("We couldn't locate you");
+            builder.setMessage("Check your GPS settings and if you have Latitude enabled.");
+            builder.setNeutralButton("OK", null);
+            AlertDialog alert = builder.create();
+        }
     }
 
     @Override
@@ -89,6 +103,8 @@ public class SearchFragment extends Fragment{
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
                 if(keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+                    mPlacesList.clear();
+                    mPlacesAdapter.notifyDataSetChanged();
                     searchButton();
                     return true;
                 }

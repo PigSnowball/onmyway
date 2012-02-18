@@ -9,15 +9,16 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.porknbunny.onmyway.data.OmwLocation;
 import com.porknbunny.onmyway.store.CredentialStore;
 import com.porknbunny.onmyway.store.SharedPreferencesCredentialStore;
 import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
@@ -31,122 +32,94 @@ import com.google.api.services.latitude.model.LatitudeCurrentlocationResourceJso
 import com.google.api.services.latitude.model.Location;
 import com.google.api.services.latitude.model.LocationFeed;
 
-public class LatitudeApiSample extends Activity {
+public class LatitudeApiSample extends FragmentActivity {
 
     private static final String TAG = "LatSample";
-	private SharedPreferences prefs;
-	private TextView textView; 
-	 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    private SharedPreferences prefs;
+    private TextView textView;
 
-		Button launchOauth = (Button) findViewById(R.id.btn_launch_oauth);
-		Button clearCredentials = (Button) findViewById(R.id.btn_clear_credentials);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-		this.textView = (TextView) findViewById(R.id.response_code);
-		
-		// Launch the OAuth flow to get an access token required to do authorized API calls.
-		// When the OAuth flow finishes, we redirect to this Activity to perform the API call.
-		launchOauth.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				startActivity(new Intent().setClass(v.getContext(),OAuthAccessTokenActivity.class));
-			}
-		});
-
-		// Clearing the credentials and performing an API call to see the unauthorized message.
-		clearCredentials.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				clearCredentials();
-				performApiCall();
-			}
-
-		});
-		
-		// Performs an authorized API call.
-		//performApiCall();
-        Button launchLat = (Button)findViewById(R.id.btn_launch_lat);
-        launchLat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                performApiCall();
-            }
-        });
-
-	}
-	
-	/**
-	 * Clears our credentials (token and token secret) from the shared preferences.
-	 * We also setup the authorizer (without the token).
-	 * After this, no more authorized API calls will be possible.
-	 */
-    private void clearCredentials() {
-    	new SharedPreferencesCredentialStore(prefs).clearCredentials();
+        ApiCall apiCall = new ApiCall();
+        apiCall.execute();
     }
-	
+
     /**
      * Performs an authorized API call.
      */
-	private void performApiCall() {
-		try {
-			JsonFactory jsonFactory = new JacksonFactory();
-			HttpTransport transport = new NetHttpTransport();
-			
-			CredentialStore credentialStore = new SharedPreferencesCredentialStore(prefs);
-			AccessTokenResponse accessTokenResponse = credentialStore.read();
-			
-			GoogleAccessProtectedResource accessProtectedResource = new GoogleAccessProtectedResource(accessTokenResponse.accessToken,
-			        transport,
-			        jsonFactory,
-			        OAuth2ClientCredentials.CLIENT_ID,
-			        OAuth2ClientCredentials.CLIENT_SECRET,
-			        accessTokenResponse.refreshToken);
-			
-		    final Latitude latitude = new Latitude(transport, accessProtectedResource, jsonFactory);
-		    latitude.apiKey=OAuth2ClientCredentials.API_KEY;
-		    
-			LatitudeCurrentlocationResourceJson currentLocation = latitude.currentLocation.get().execute();
 
-			String locationAsString = convertLocationToString(currentLocation);
-			textView.setText(locationAsString);
+    private class ApiCall extends AsyncTask<Void, Void, Boolean> {
+        ArrayList<android.location.Location> locationList;
+        
+        private Boolean performApiCall() {
+            try {
+                JsonFactory jsonFactory = new JacksonFactory();
+                HttpTransport transport = new NetHttpTransport();
 
-            ArrayList<android.location.Location> locationList = new ArrayList<android.location.Location>();
+                CredentialStore credentialStore = new SharedPreferencesCredentialStore(prefs);
+                AccessTokenResponse accessTokenResponse = credentialStore.read();
 
-           LocationFeed locationFeed = latitude.location.list().execute();
-           for(Location location : locationFeed.items){
-               Log.d(TAG,location.toString());
-               double lat = Double.parseDouble(location.latitude.toString());
-               double longitude = Double.parseDouble(location.longitude.toString());
-               long secondsSinceEpoch = Long.parseLong(location.timestampMs.toString());
-               android.location.Location androidLocation = new android.location.Location("Latitude");
-               androidLocation.setLatitude(lat);
-               androidLocation.setLongitude(longitude);
-               androidLocation.setTime(secondsSinceEpoch);
-               Log.d(TAG, androidLocation.toString());
+                GoogleAccessProtectedResource accessProtectedResource = new GoogleAccessProtectedResource(accessTokenResponse.accessToken,
+                        transport,
+                        jsonFactory,
+                        OAuth2ClientCredentials.CLIENT_ID,
+                        OAuth2ClientCredentials.CLIENT_SECRET,
+                        accessTokenResponse.refreshToken);
 
-               locationList.add(androidLocation);
+                final Latitude latitude = new Latitude(transport, accessProtectedResource, jsonFactory);
+                latitude.apiKey = OAuth2ClientCredentials.API_KEY;
 
-           }
+                locationList = new ArrayList<android.location.Location>();
 
-            Intent intent = new Intent(this, SearchActivity.class);
-            intent.putParcelableArrayListExtra("locations", locationList);
-            startActivity(intent);
+                LocationFeed locationFeed = latitude.location.list().execute();
+                for (Location location : locationFeed.items) {
+                    Log.d(TAG, location.toString());
+                    double lat = Double.parseDouble(location.latitude.toString());
+                    double longitude = Double.parseDouble(location.longitude.toString());
+                    long secondsSinceEpoch = Long.parseLong(location.timestampMs.toString());
+                    android.location.Location androidLocation = new android.location.Location("Latitude");
+                    androidLocation.setLatitude(lat);
+                    androidLocation.setLongitude(longitude);
+                    androidLocation.setTime(secondsSinceEpoch);
+                    Log.d(TAG, androidLocation.toString());
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			textView.setText("Error occured : " + ex.getMessage());
-		}
-	}
+                    locationList.add(androidLocation);
+                }
 
-	private String convertLocationToString(
-			LatitudeCurrentlocationResourceJson currentLocation) {
-		String timestampMs = (String) currentLocation.get("timestampMs");
-		DateFormat df= new  SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-		Date d = new Date(Long.valueOf(timestampMs));
-		String locationAsString = "Current location : " + currentLocation.get("latitude") + " - " + currentLocation.get("longitude") + " at " + df.format(d);
-		return locationAsString;
-	}
-	
+                return true;
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                textView.setText("Error occured : " + ex.getMessage());
+            }
+            return false;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            return performApiCall();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+            
+            if(success){
+                Intent intent = new Intent(LatitudeApiSample.this, SearchActivity.class);
+                intent.putParcelableArrayListExtra("locations", locationList);
+                startActivity(intent);
+            }
+            else{
+                //auth failed, do it again
+                //TODO - this really shouldn't be needing the application context.... i think...
+                startActivity(new Intent().setClass(getApplicationContext(), OAuthAccessTokenActivity.class));
+            }
+            
+            
+        }
+    }
 }

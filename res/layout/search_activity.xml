@@ -8,21 +8,8 @@
                android:layout_gravity="bottom|right"
                android:adjustViewBounds="true"
                android:src="@drawable/powered_by_google_on_white"/>
-    <LinearLayout android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <fragment class="com.porknbunny.onmyway.SavedSearchFragment"
-              android:id="@+id/savedFragment"
-              android:layout_weight="1"
-              android:layout_width="0px"
-              android:layout_height="match_parent" />
     <fragment class="com.porknbunny.onmyway.SearchFragment"
               android:id="@+id/searchFragment"
-              android:layout_weight="3"
-              android:layout_width="0px"
+              android:layout_width="match_parent"
               android:layout_height="match_parent" />
-</LinearLayout>
-
-
-
 </FrameLayout>
