@@ -55,6 +55,9 @@ public class OAuthAccessTokenActivity extends Activity {
         /* WebViewClient must be set BEFORE calling loadUrl! */  
         webview.setWebViewClient(new WebViewClient() {  
 
+
+
+
         	@Override  
             public void onPageStarted(WebView view, String url,Bitmap bitmap)  {  
         		System.out.println("onPageStarted : " + url);
