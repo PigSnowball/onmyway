@@ -60,7 +60,6 @@ public class SearchFragment extends Fragment{
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
                 if(keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN){
-                    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                     searchButton();
                     return true;
                 }
