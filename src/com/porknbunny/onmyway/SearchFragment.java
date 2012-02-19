@@ -39,9 +39,9 @@ public class SearchFragment extends Fragment {
     private int searchCount = 0;
     private ProgressBar mProgressBar;
     private int searchValue = 0;
-    
+
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         /*
@@ -70,19 +70,19 @@ public class SearchFragment extends Fragment {
         }
 
         mLocationsList = new ArrayList<Location>();
-        if(mLocation != null){
+        if (mLocation != null) {
             mLocationsList.add(mLocation);
         }
 
         //sort latitude data
         ArrayList<Location> tempLocList = getActivity().getIntent().getExtras().getParcelableArrayList("locations");
 
-        if(tempLocList != null && tempLocList.size() >0){
+        if (tempLocList != null && tempLocList.size() > 0) {
             mLocationsList.addAll(tempLocList);
         }
 
-        if(mLocationsList.size() == 0){
-            Log.w(TAG,"User has neither latitude locations or hardware location");
+        if (mLocationsList.size() == 0) {
+            Log.w(TAG, "User has neither latitude locations or hardware location");
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("We couldn't locate you");
             builder.setMessage("Check your GPS settings and if you have Latitude enabled.");
@@ -100,12 +100,12 @@ public class SearchFragment extends Fragment {
 
         //set up results table
         mPlacesAdapter = new PlaceListAdapter();
-        mSearchListView = (ListView)getActivity().findViewById(R.id.searchResultsList);
+        mSearchListView = (ListView) getActivity().findViewById(R.id.searchResultsList);
         mSearchListView.setAdapter(mPlacesAdapter);
         mSearchListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Place place = mPlacesList.get(i);
+                Place place = (Place) mPlacesList.get(i);
                 Location navBusiness = place.getLocation();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + navBusiness.getLatitude() + "," + navBusiness.getLongitude() + "?q=" + navBusiness.getLatitude() + "," + navBusiness.getLongitude() + "(" + URLEncoder.encode(place.getmName()) + ")"));
                 startActivity(intent);
@@ -113,11 +113,11 @@ public class SearchFragment extends Fragment {
         });
 
         //EditTextView
-        mSearchEditTextView = (EditText)getActivity().findViewById(R.id.searchText);
+        mSearchEditTextView = (EditText) getActivity().findViewById(R.id.searchText);
         mSearchEditTextView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-                if(keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+                if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     mPlacesList.clear();
                     mPlacesAdapter.notifyDataSetChanged();
                     searchButton();
@@ -126,7 +126,7 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
-        
+
         mProgressBar = (ProgressBar) getActivity().findViewById(R.id.search_progress);
         mProgressBar.setVisibility(View.INVISIBLE);
 
@@ -136,14 +136,14 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        
+
         View view = inflater.inflate(R.layout.search_results_fragment, container, false);
         return view;
     }
-    
-    public void addPlace(Place newPlace){
+
+    public void addPlace(Place newPlace) {
         //check for dupes
-        if(isDuplicate(newPlace)){
+        if (isDuplicate(newPlace)) {
             return;
         }
 
@@ -157,13 +157,13 @@ public class SearchFragment extends Fragment {
                 minDistance = testLocation.distanceTo(newPlaceLoc);
             }
         }
-        
+
         newPlace.setmNearestLatitude(minLocation);
         newPlace.setmDistanceToLatPoint(minDistance);
-        
+
         //find position to enter in array
-        for(Place cmpPlace: mPlacesList){
-            if(cmpPlace.getmDistanceToLatPoint() > newPlace.getmDistanceToLatPoint()){
+        for (Place cmpPlace : mPlacesList) {
+            if (cmpPlace.getmDistanceToLatPoint() > newPlace.getmDistanceToLatPoint()) {
                 int insertInFrontOf = mPlacesList.indexOf(cmpPlace);
                 mPlacesList.add(insertInFrontOf, newPlace);
                 return;
@@ -171,22 +171,22 @@ public class SearchFragment extends Fragment {
         }
         mPlacesList.add(newPlace);
 
-        //DownloadThumbnail downloadThumbnail = new DownloadThumbnail(mPlacesAdapter, getActivity());
-        //downloadThumbnail.execute(newPlace);
-        
+        DownloadThumbnail downloadThumbnail = new DownloadThumbnail(mPlacesAdapter, getActivity());
+        downloadThumbnail.execute(newPlace);
+
     }
 
-    public void addPlaces(ArrayList<Place> newPlaces){
-        for(Place newPlace : newPlaces){
+    public void addPlaces(ArrayList<Place> newPlaces) {
+        for (Place newPlace : newPlaces) {
             addPlace(newPlace);
         }
 
         mPlacesAdapter.notifyDataSetChanged();
     }
 
-    private boolean isDuplicate(Place newPlace){
-        for(Place existingPlace : mPlacesList){
-            if(existingPlace.getmReference().equals(newPlace.getmReference())){
+    private boolean isDuplicate(Place newPlace) {
+        for (Place existingPlace : mPlacesList) {
+            if (existingPlace.getmReference().equals(newPlace.getmReference())) {
 
                 return true;
             }
@@ -194,10 +194,10 @@ public class SearchFragment extends Fragment {
         return false;
     }
 
-    private class PlaceListAdapter extends BaseAdapter{
+    private class PlaceListAdapter extends BaseAdapter {
         LayoutInflater inflateService;
 
-        public PlaceListAdapter(){
+        public PlaceListAdapter() {
             super();
             inflateService = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -218,7 +218,7 @@ public class SearchFragment extends Fragment {
         }
 
         @Override
-        public View getView (int position, View convertView, ViewGroup parent){
+        public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = inflateService.inflate(R.layout.place_list_item, parent, false);
                 int resourceList[] = {R.id.place_name,
@@ -246,26 +246,27 @@ public class SearchFragment extends Fragment {
             return convertView;
         }
     }
-    
-    private Bitmap getIcon(Place place){
-        if(place.getThumbnail() != null && !place.isThumbDownloading()){
+
+    private Bitmap getIcon(Place place) {
+        if (place.getThumbnail() != null && !place.isThumbDownloading()) {
             Bitmap bitmap = BitmapFactory.decodeFile(place.getThumbnail().getAbsolutePath());
-            if(bitmap == null){
-                return BitmapFactory.decodeResource(getResources(),R.drawable.icon);
+            if (bitmap != null) {
+                return bitmap;
             }
+
         }
-        
-        return BitmapFactory.decodeResource(getResources(),R.drawable.icon);
+
+        return BitmapFactory.decodeResource(getResources(), R.drawable.icon);
     }
-    
-    private String niceDistance(float distance){
-        if(distance > 1000){
-            return ((float)(int)(distance/100)/10)+"km";
+
+    private String niceDistance(float distance) {
+        if (distance > 1000) {
+            return ((float) (int) (distance / 100) / 10) + "km";
         }
-        return ((int)distance) + "m";
+        return ((int) distance) + "m";
     }
-    
-    public void searchButton(){
+
+    public void searchButton() {
         String query = mSearchEditTextView.getText().toString();
         Log.d(TAG, "Do places search: " + mSearchEditTextView.getText());
 
@@ -274,8 +275,8 @@ public class SearchFragment extends Fragment {
         mProgressBar.setProgress(0);
         //only keeping latitude data seperated by 500m
         Location prevLocation = null;
-        for(Location location : mLocationsList){
-            if(prevLocation == null || prevLocation.distanceTo(location) > 1500){
+        for (Location location : mLocationsList) {
+            if (prevLocation == null || prevLocation.distanceTo(location) > 2000) {
                 PlacesQuery placesQuery = new PlacesQuery(location, query, "AIzaSyAC-8tZVVPKXxAnBMhK3jUBFuRNXtAsOjk");
                 AsyncPlacesQuery asyncPlacesQuery = new AsyncPlacesQuery();
                 asyncPlacesQuery.execute(placesQuery);
@@ -284,26 +285,29 @@ public class SearchFragment extends Fragment {
         }
         mProgressBar.setProgress(5);
         searchValue = 95 / searchCount;
-        
+
     }
 
-    private void checkProgress(){
+    private void checkProgress() {
         searchCount--;
         mProgressBar.incrementProgressBy(searchValue);
-        if(searchCount <= 0){
+        if (searchCount <= 0) {
             mProgressBar.incrementProgressBy(searchValue);
             mProgressBar.setVisibility(View.INVISIBLE);
 
-            for(Place place: mPlacesList){
-                AsyncGeocoder asyncGeocoder = new AsyncGeocoder();
-                asyncGeocoder.execute(place);
+            AsyncGeocoder asyncGeocoder = new AsyncGeocoder();
+            asyncGeocoder.execute();
+
+            for (Place place : mPlacesList) {
+                DownloadThumbnail downloadThumbnail = new DownloadThumbnail(mPlacesAdapter, getActivity());
+                downloadThumbnail.execute(place);
             }
         }
     }
-    
-    private class AsyncPlacesQuery extends AsyncTask<PlacesQuery, Void, ArrayList<Place>>{
-        public AsyncPlacesQuery(){
-             super();
+
+    private class AsyncPlacesQuery extends AsyncTask<PlacesQuery, Void, ArrayList<Place>> {
+        public AsyncPlacesQuery() {
+            super();
             searchCount++;
         }
 
@@ -315,7 +319,7 @@ public class SearchFragment extends Fragment {
         }
 
         protected void onPostExecute(ArrayList<Place> placeList) {
-            for(Place place : placeList){
+            for (Place place : placeList) {
                 Log.d(TAG, "JSON RESULTS: " + place);
             }
             addPlaces(placeList);
@@ -323,32 +327,33 @@ public class SearchFragment extends Fragment {
         }
     }
 
-    private class AsyncGeocoder extends AsyncTask<Place, Void, Boolean>{
-        public AsyncGeocoder(){
+    private class AsyncGeocoder extends AsyncTask<Void, Void, Boolean> {
+        public AsyncGeocoder() {
             super();
         }
 
         @Override
-        protected Boolean doInBackground(Place... placeList) {
-            Place place = placeList[0];
-
+        protected Boolean doInBackground(Void... voids) {
             Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
-            try {
-                List<Address> addressList = geocoder.getFromLocation(place.getmNearestLatitude().getLatitude(),place.getmNearestLatitude().getLongitude(),1);
-                place.setmNearestLatitudeNice(addressList.get(0).getAddressLine(0)+", "+addressList.get(0).getLocality());
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            for (Place place : mPlacesList) {
+
+                if (place.getmNearestLatitudeNice() != null && place.getmNearestLatitudeNice().length() > 0) {
+                    continue;
+                }
+
+                try {
+                    List<Address> addressList = geocoder.getFromLocation(place.getmNearestLatitude().getLatitude(), place.getmNearestLatitude().getLongitude(), 1);
+                    place.setmNearestLatitudeNice(addressList.get(0).getAddressLine(0) + ", " + addressList.get(0).getLocality());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-
-
-            return false;
+            return true;
         }
 
         protected void onPostExecute(Boolean success) {
-            if(success){
-                mPlacesAdapter.notifyDataSetChanged();
-            }
+            mPlacesAdapter.notifyDataSetChanged();
         }
     }
 

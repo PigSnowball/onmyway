@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent">
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
     <ImageView android:adjustViewBounds="true"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
@@ -13,29 +13,38 @@
               android:layout_width="wrap_content"
               android:layout_toRightOf="@id/place_icon"
               android:id="@+id/place_name"
-              android:text="Place Name"/>
+              android:text="Place Name"
+              android:textStyle="bold"
+              android:textColor="#C26558"
+              android:textSize="15sp"/>
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_below="@id/place_name"
               android:layout_alignLeft="@id/place_name"
               android:id="@+id/place_vicinity"
-            android:text="Place Vicinity"/>
+              android:text="Place Vicinity"
+              android:textColor="#467082"/>
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignLeft="@id/place_name"
               android:layout_below="@id/place_vicinity"
               android:id="@+id/place_lat"
-              android:text="Cnr. Jacksons Rd and Collingwood."/>
+              android:text="Cnr. Jacksons Rd and Collingwood."
+              android:textColor="#99789D"
+              android:textSize="10sp"/>
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignParentRight="true"
               android:layout_alignBaseline="@id/place_lat"
               android:id="@+id/place_distance_to_lat"
-              android:text="220m"/>
+              android:text="220m"
+              android:textColor="#99789D"
+              android:textSize="10sp" />
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignParentRight="true"
               android:layout_alignParentTop="true"
               android:id="@+id/place_distance_to_user"
-              android:text="5.5km"/>
+              android:text="5.5km"
+              />
 </RelativeLayout>

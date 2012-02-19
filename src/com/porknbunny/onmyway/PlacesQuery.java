@@ -84,7 +84,7 @@ public class PlacesQuery {
                         latitude = (float) location.getDouble("lat");
                         longitude = (float) location.getDouble("lng");
 
-                        icon = jsonPlace.getString("name");
+                        icon = jsonPlace.getString("icon");
                         reference = jsonPlace.getString("id"); //fudge it. i need an id that's useful accross searches, no idea why google makes this different to reference
                         name = jsonPlace.getString("name");
                         vicinity = jsonPlace.getString("vicinity");
