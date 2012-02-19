@@ -2,9 +2,9 @@ package com.porknbunny.onmyway;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
+import android.content.Intent;
+import android.location.*;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,6 +100,15 @@ public class SearchFragment extends Fragment {
         mPlacesAdapter = new PlaceListAdapter();
         mSearchListView = (ListView)getActivity().findViewById(R.id.searchResultsList);
         mSearchListView.setAdapter(mPlacesAdapter);
+        mSearchListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Place place = mPlacesList.get(i);
+                Location navBusiness = place.getLocation();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + navBusiness.getLatitude() + "," + navBusiness.getLongitude() + "?q=" + navBusiness.getLatitude() + "," + navBusiness.getLongitude() + "(" + URLEncoder.encode(place.getmName()) + ")"));
+                startActivity(intent);
+            }
+        });
 
         //EditTextView
         mSearchEditTextView = (EditText)getActivity().findViewById(R.id.searchText);
@@ -221,13 +232,20 @@ public class SearchFragment extends Fragment {
             if (place != null) {
                 ((TextView) convertView.getTag(R.id.place_name)).setText(place.getmName());
                 ((TextView) convertView.getTag(R.id.place_vicinity)).setText(place.getVicinity());
-                ((TextView) convertView.getTag(R.id.place_lat)).setText("");
-                ((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(""+(int)place.getLocation().distanceTo(mLocation)+"m");
-                ((TextView) convertView.getTag(R.id.place_distance_to_lat)).setText(""+(int)place.getmDistanceToLatPoint()+"m");
+                ((TextView) convertView.getTag(R.id.place_lat)).setText(place.getmNearestLatitudeNice());
+                ((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(niceDistance(place.getLocation().distanceTo(mLocation)));
+                ((TextView) convertView.getTag(R.id.place_distance_to_lat)).setText(niceDistance(place.getmDistanceToLatPoint()));
                 //((ImageView) convertView.getTag(R.id.place_icon))
             }
             return convertView;
         }
+    }
+    
+    private String niceDistance(float distance){
+        if(distance > 1000){
+            return (int)(distance/100)+"km";
+        }
+        return ((int)distance) + "m";
     }
     
     public void searchButton(){
@@ -258,6 +276,12 @@ public class SearchFragment extends Fragment {
         if(searchCount <= 0){
             mProgressBar.incrementProgressBy(searchValue);
             mProgressBar.setVisibility(View.INVISIBLE);
+            
+            //get geocodes
+            for(Place place : mPlacesList){
+                AsyncGeocoder asyncGeocoder = new AsyncGeocoder();
+                asyncGeocoder.execute(place);
+            }
         }
     }
     
@@ -280,6 +304,35 @@ public class SearchFragment extends Fragment {
             }
             addPlaces(placeList);
             checkProgress();
+        }
+    }
+
+    private class AsyncGeocoder extends AsyncTask<Place, Void, Boolean>{
+        public AsyncGeocoder(){
+            super();
+        }
+
+        @Override
+        protected Boolean doInBackground(Place... placeList) {
+            Place place = placeList[0];
+
+            Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
+            try {
+                List<Address> addressList = geocoder.getFromLocation(place.getmNearestLatitude().getLatitude(),place.getmNearestLatitude().getLongitude(),1);
+                place.setmNearestLatitudeNice(addressList.get(0).getAddressLine(0));
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return false;
+        }
+
+        protected void onPostExecute(Boolean success) {
+            if(success){
+                mPlacesAdapter.notifyDataSetChanged();
+            }
         }
     }
 

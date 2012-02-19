@@ -1,6 +1,8 @@
 package com.porknbunny.onmyway;
 
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 
 /**
  * Created by IntelliJ IDEA.
@@ -119,4 +121,5 @@ public class Place {
                 ", mVicinity='" + mVicinity + '\'' +
                 '}';
     }
+
 }
