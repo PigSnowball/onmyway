@@ -28,7 +28,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
  * After the request is authorized by the user, the callback URL will be intercepted here.
  * 
  */
-public class OAuthAccessTokenActivity extends FragmentActivity {
+public class OAuthAccessTokenActivity extends Activity {
 
 	final String TAG = getClass().getName();
 	

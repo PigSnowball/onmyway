@@ -3,6 +3,8 @@ package com.porknbunny.onmyway;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.*;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -235,15 +237,19 @@ public class SearchFragment extends Fragment {
                 ((TextView) convertView.getTag(R.id.place_lat)).setText(place.getmNearestLatitudeNice());
                 ((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(niceDistance(place.getLocation().distanceTo(mLocation)));
                 ((TextView) convertView.getTag(R.id.place_distance_to_lat)).setText(niceDistance(place.getmDistanceToLatPoint()));
-                //((ImageView) convertView.getTag(R.id.place_icon))
+                ((ImageView) convertView.getTag(R.id.place_icon)).setImageBitmap(getIcon(place));
             }
             return convertView;
         }
     }
     
+    private Bitmap getIcon(Place place){
+        return BitmapFactory.decodeResource(getResources(),R.drawable.icon);
+    }
+    
     private String niceDistance(float distance){
         if(distance > 1000){
-            return (int)(distance/100)+"km";
+            return ((float)(int)(distance/100)/10)+"km";
         }
         return ((int)distance) + "m";
     }
@@ -319,7 +325,7 @@ public class SearchFragment extends Fragment {
             Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
             try {
                 List<Address> addressList = geocoder.getFromLocation(place.getmNearestLatitude().getLatitude(),place.getmNearestLatitude().getLongitude(),1);
-                place.setmNearestLatitudeNice(addressList.get(0).getAddressLine(0));
+                place.setmNearestLatitudeNice(addressList.get(0).getAddressLine(0)+", "+addressList.get(0).getLocality());
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();

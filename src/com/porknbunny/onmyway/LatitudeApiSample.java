@@ -32,7 +32,7 @@ import com.google.api.services.latitude.model.LatitudeCurrentlocationResourceJso
 import com.google.api.services.latitude.model.Location;
 import com.google.api.services.latitude.model.LocationFeed;
 
-public class LatitudeApiSample extends FragmentActivity {
+public class LatitudeApiSample extends Activity {
 
     private static final String TAG = "LatSample";
     private SharedPreferences prefs;
@@ -116,10 +116,18 @@ public class LatitudeApiSample extends FragmentActivity {
             else{
                 //auth failed, do it again
                 //TODO - this really shouldn't be needing the application context.... i think...
-                startActivity(new Intent().setClass(getApplicationContext(), OAuthAccessTokenActivity.class));
+                //TODO - this could have occured because of a failed internet connection too...
+                startActivityForResult((new Intent().setClass(getApplicationContext(), OAuthAccessTokenActivity.class)),1);
             }
             
             
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ApiCall apiCall = new ApiCall();
+        apiCall.execute();
     }
 }
