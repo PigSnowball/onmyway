@@ -224,7 +224,7 @@ public class SearchFragment extends Fragment {
                 int resourceList[] = {R.id.place_name,
                         R.id.place_icon,
                         R.id.place_distance_to_lat,
-                        R.id.place_distance_to_user,
+                        //R.id.place_distance_to_user,
                         R.id.place_lat,
                         R.id.place_vicinity
                 };
@@ -239,7 +239,7 @@ public class SearchFragment extends Fragment {
                 ((TextView) convertView.getTag(R.id.place_name)).setText(place.getmName());
                 ((TextView) convertView.getTag(R.id.place_vicinity)).setText(place.getVicinity());
                 ((TextView) convertView.getTag(R.id.place_lat)).setText(place.getmNearestLatitudeNice());
-                ((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(niceDistance(place.getLocation().distanceTo(mLocation)));
+                //((TextView) convertView.getTag(R.id.place_distance_to_user)).setText(niceDistance(place.getLocation().distanceTo(mLocation)));
                 ((TextView) convertView.getTag(R.id.place_distance_to_lat)).setText(niceDistance(place.getmDistanceToLatPoint()));
                 ((ImageView) convertView.getTag(R.id.place_icon)).setImageBitmap(getIcon(place));
             }

@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#BDCCD4"
+              android:paddingLeft="10dp"
+              android:paddingTop="10dp"
+              android:paddingRight="10dp"
+              >
+    <RelativeLayout android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/white_box"
+                    >
     <ImageView android:adjustViewBounds="true"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:src="@drawable/icon"
                android:id="@+id/place_icon"
-               android:layout_gravity="top|left"/>
+               android:layout_gravity="top|left"
+               android:paddingRight="10dp"
+               />
     <TextView android:layout_height="wrap_content"
-              android:layout_width="wrap_content"
+              android:layout_width="0dp"
+              android:layout_toLeftOf="@+id/place_distance_to_lat"
               android:layout_toRightOf="@id/place_icon"
               android:id="@+id/place_name"
               android:text="Place Name"
@@ -23,28 +35,37 @@
               android:layout_alignLeft="@id/place_name"
               android:id="@+id/place_vicinity"
               android:text="Place Vicinity"
-              android:textColor="#467082"/>
+              android:textColor="#467082"
+              android:textSize="15sp"/>
+    <RelativeLayout android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:background="@drawable/yellow_box"
+          android:layout_alignLeft="@id/place_name"
+          android:layout_below="@id/place_vicinity"
+          android:layout_marginTop="5dp"
+          >
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="You were closest when you were at"
+              android:id="@+id/youwerehere"
+              android:textSize="10sp"/>
+
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
-              android:layout_alignLeft="@id/place_name"
-              android:layout_below="@id/place_vicinity"
+              android:layout_below="@id/youwerehere"
               android:id="@+id/place_lat"
               android:text="Cnr. Jacksons Rd and Collingwood."
-              android:textColor="#99789D"
-              android:textSize="10sp"/>
-    <TextView android:layout_height="wrap_content"
-              android:layout_width="wrap_content"
-              android:layout_alignParentRight="true"
-              android:layout_alignBaseline="@id/place_lat"
-              android:id="@+id/place_distance_to_lat"
-              android:text="220m"
-              android:textColor="#99789D"
-              android:textSize="10sp" />
+              android:textColor="#53697A"
+              android:textSize="10sp"
+              android:textStyle="bold"
+              />
+    </RelativeLayout>
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignParentRight="true"
               android:layout_alignParentTop="true"
-              android:id="@+id/place_distance_to_user"
-              android:text="5.5km"
-              />
+              android:id="@+id/place_distance_to_lat"
+              android:text="220m"
+              android:textSize="15sp" />
+    </RelativeLayout>
 </RelativeLayout>
