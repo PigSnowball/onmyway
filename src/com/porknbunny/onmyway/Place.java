@@ -4,6 +4,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 
+import java.io.File;
+
 /**
  * Created by IntelliJ IDEA.
  * User: pigsnowball
@@ -11,7 +13,7 @@ import android.os.AsyncTask;
  * Time: 08:39
  * To change this template use File | Settings | File Templates.
  */
-public class Place {
+public class Place implements HasThumbnail{
     private float mLatitude, mLongitude;
     private String mIcon, mReference , mName, mVicinity;
     private float mDistanceToUser, mDistanceToLatPoint;
@@ -122,4 +124,31 @@ public class Place {
                 '}';
     }
 
+    private boolean mIsDownloading = false;
+    private File mCacheFile = null;
+
+    @Override
+    public String getThumbnailURL() {
+        return mIcon;
+    }
+
+    @Override
+    public File getThumbnail() {
+        return mCacheFile;
+    }
+
+    @Override
+    public void setThumbDownloading(boolean isDownloading) {
+        mIsDownloading = isDownloading;
+    }
+
+    @Override
+    public boolean isThumbDownloading() {
+        return mIsDownloading;
+    }
+
+    @Override
+    public void setThumbnail(File cacheFile) {
+        mCacheFile = cacheFile;
+    }
 }

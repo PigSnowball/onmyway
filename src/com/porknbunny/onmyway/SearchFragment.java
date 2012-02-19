@@ -170,6 +170,9 @@ public class SearchFragment extends Fragment {
             }
         }
         mPlacesList.add(newPlace);
+
+        //DownloadThumbnail downloadThumbnail = new DownloadThumbnail(mPlacesAdapter, getActivity());
+        //downloadThumbnail.execute(newPlace);
         
     }
 
@@ -177,6 +180,7 @@ public class SearchFragment extends Fragment {
         for(Place newPlace : newPlaces){
             addPlace(newPlace);
         }
+
         mPlacesAdapter.notifyDataSetChanged();
     }
 
@@ -244,6 +248,13 @@ public class SearchFragment extends Fragment {
     }
     
     private Bitmap getIcon(Place place){
+        if(place.getThumbnail() != null && !place.isThumbDownloading()){
+            Bitmap bitmap = BitmapFactory.decodeFile(place.getThumbnail().getAbsolutePath());
+            if(bitmap == null){
+                return BitmapFactory.decodeResource(getResources(),R.drawable.icon);
+            }
+        }
+        
         return BitmapFactory.decodeResource(getResources(),R.drawable.icon);
     }
     
@@ -282,9 +293,8 @@ public class SearchFragment extends Fragment {
         if(searchCount <= 0){
             mProgressBar.incrementProgressBy(searchValue);
             mProgressBar.setVisibility(View.INVISIBLE);
-            
-            //get geocodes
-            for(Place place : mPlacesList){
+
+            for(Place place: mPlacesList){
                 AsyncGeocoder asyncGeocoder = new AsyncGeocoder();
                 asyncGeocoder.execute(place);
             }

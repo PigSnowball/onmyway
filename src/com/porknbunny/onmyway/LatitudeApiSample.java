@@ -127,7 +127,7 @@ public class LatitudeApiSample extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ApiCall apiCall = new ApiCall();
-        apiCall.execute();
+        //ApiCall apiCall = new ApiCall();
+        //apiCall.execute();
     }
 }
