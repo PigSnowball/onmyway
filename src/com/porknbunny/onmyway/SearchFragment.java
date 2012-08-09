@@ -277,7 +277,7 @@ public class SearchFragment extends Fragment {
         Location prevLocation = null;
         for (Location location : mLocationsList) {
             if (prevLocation == null || prevLocation.distanceTo(location) > 2000) {
-                PlacesQuery placesQuery = new PlacesQuery(location, query, "AIzaSyAC-8tZVVPKXxAnBMhK3jUBFuRNXtAsOjk");
+                PlacesQuery placesQuery = new PlacesQuery(location, query, GOOGLE_API_KEY);
                 AsyncPlacesQuery asyncPlacesQuery = new AsyncPlacesQuery();
                 asyncPlacesQuery.execute(placesQuery);
             }
